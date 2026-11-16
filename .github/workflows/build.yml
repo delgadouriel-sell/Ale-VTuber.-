@@ -1,0 +1,40 @@
+
+name: Crear APK de Ale
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'AleVTuberAndroid_proyecto.zip'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Descomprimir Ale
+        run: unzip -q AleVTuberAndroid_proyecto.zip -d ale-project
+
+      - name: Compilar APK
+        working-directory: ale-project
+        run: gradle assembleDebug
+
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ale-VTuber-APK
+          path: ale-project/app/build/outputs/apk/debug/*.apk
